@@ -1,8 +1,23 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders main heading', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const heading = screen.getByRole('heading', { name: /Welcome to CHIEF G MEDIA/i });
+  expect(heading).toBeInTheDocument();
+});
+
+test('hamburger toggles sidebar open/close', () => {
+  render(<App />);
+  const toggle = screen.getByLabelText(/Toggle navigation/i);
+  const sidebar = screen.getByLabelText(/Side navigation/i);
+
+  // initially closed
+  expect(sidebar.classList.contains('open')).toBe(false);
+
+  fireEvent.click(toggle);
+  expect(sidebar.classList.contains('open')).toBe(true);
+
+  fireEvent.click(toggle);
+  expect(sidebar.classList.contains('open')).toBe(false);
 });
