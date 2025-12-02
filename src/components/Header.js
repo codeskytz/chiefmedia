@@ -15,9 +15,10 @@ export default function Header({ toggleSidebar }) {
         </div>
 
         <nav className="header-nav" aria-label="Main navigation">
-          <a href="#main">Home</a>
-          <a href="#services">Services</a>
-          <a href="#contact">Contact</a>
+          <a href="#home">Home</a>
+          <a href="#updates">Updates</a>
+          <a href="#contacts">Contacts</a>
+          <a href="#about">About Us</a>
         </nav>
         <button
           className="hamburger"

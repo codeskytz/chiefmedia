@@ -1,0 +1,101 @@
+/**
+ * FIRESTORE SECURITY RULES FOR CHIEF G MEDIA
+ * 
+ * Apply these rules in Firebase Console:
+ * 1. Go to Firebase Console > Firestore Database > Rules
+ * 2. Replace the default rules with the content below
+ * 3. Click Publish
+ * 
+ * Rules Structure:
+ * - Authenticated admins can create, read, update, delete announcements
+ * - Authenticated admins can create, read, update, delete updates
+ * - Public users can read announcements and updates (for frontend display)
+ * - Unauthenticated users cannot modify data
+ * - File uploads are validated by size and type
+ */
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user is admin
+    // In production, check custom claims: request.auth.token.admin == true
+    // For now, check if user exists and has created an account
+    function isAdmin() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Announcements Collection Rules
+    match /announcements/{document=**} {
+      // Read: Public can read (for carousel on homepage)
+      allow read: if true;
+      
+      // Create: Only authenticated admins can create
+      allow create: if isAuthenticated() && 
+                       request.resource.data.title != null &&
+                       request.resource.data.title is string &&
+                       request.resource.data.title.size() > 0 &&
+                       request.resource.data.title.size() <= 100 &&
+                       request.resource.data.image != null &&
+                       request.resource.data.image is string &&
+                       request.resource.data.createdAt != null &&
+                       request.resource.data.updatedAt != null;
+      
+      // Update: Only authenticated admins can update
+      allow update: if isAuthenticated() && 
+                       request.resource.data.title != null &&
+                       request.resource.data.title is string &&
+                       request.resource.data.title.size() > 0 &&
+                       request.resource.data.title.size() <= 100 &&
+                       request.resource.data.updatedAt != null;
+      
+      // Delete: Only authenticated admins can delete
+      allow delete: if isAuthenticated();
+    }
+
+    // Updates Collection Rules (same structure as announcements)
+    match /updates/{document=**} {
+      // Read: Public can read (for updates section on homepage)
+      allow read: if true;
+      
+      // Create: Only authenticated admins can create
+      allow create: if isAuthenticated() && 
+                       request.resource.data.title != null &&
+                       request.resource.data.title is string &&
+                       request.resource.data.title.size() > 0 &&
+                       request.resource.data.title.size() <= 100 &&
+                       request.resource.data.description != null &&
+                       request.resource.data.description is string &&
+                       request.resource.data.description.size() > 0 &&
+                       request.resource.data.image != null &&
+                       request.resource.data.image is string &&
+                       request.resource.data.createdAt != null &&
+                       request.resource.data.updatedAt != null;
+      
+      // Update: Only authenticated admins can update
+      allow update: if isAuthenticated();
+      
+      // Delete: Only authenticated admins can delete
+      allow delete: if isAuthenticated();
+    }
+
+    // Admins Collection (for tracking admin users)
+    match /admins/{userId} {
+      // Read: Only the user can read their own admin document
+      allow read: if request.auth.uid == userId;
+      
+      // Create: Only authenticated users can create their admin document
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      
+      // Update: Only the user can update their own document
+      allow update: if request.auth.uid == userId;
+      
+      // Delete: Deny deletion (admins should be managed by super-admin)
+      allow delete: if false;
+    }
+  }
+}

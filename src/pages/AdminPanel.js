@@ -1,0 +1,87 @@
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import AnnouncementForm from '../components/admin/AnnouncementForm';
+import AnnouncementsList from '../components/admin/AnnouncementsList';
+import '../styles/AdminPanel.css';
+
+export default function AdminPanel() {
+  const { user, logout } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleLogout = async () => {
+    setLoading(true);
+    try {
+      await logout();
+      window.location.href = '/admin/login';
+    } catch (err) {
+      console.error('Logout failed:', err);
+      setLoading(false);
+    }
+  };
+
+  const handleAnnouncementCreated = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
+  return (
+    <div className="admin-panel">
+      <header className="admin-header">
+        <div className="admin-header-content">
+          <h1>Admin Dashboard</h1>
+          <div className="admin-user-info">
+            <span className="user-email">{user?.email}</span>
+            <button 
+              onClick={handleLogout} 
+              disabled={loading}
+              className="logout-btn"
+            >
+              {loading ? 'Logging out...' : 'Logout'}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="admin-content">
+        <nav className="admin-sidebar">
+          <ul>
+            <li><a href="#announcements">Announcements</a></li>
+            <li><a href="#updates">Updates</a></li>
+            <li><a href="#users">Users</a></li>
+            <li><a href="#settings">Settings</a></li>
+          </ul>
+        </nav>
+
+        <main className="admin-main">
+          <section id="announcements" className="admin-section">
+            <h2>Announcements</h2>
+            <div className="admin-section-content">
+              <div className="form-container">
+                <h3>Create New Announcement</h3>
+                <AnnouncementForm onSuccess={handleAnnouncementCreated} />
+              </div>
+              <div className="list-container">
+                <AnnouncementsList refreshTrigger={refreshTrigger} />
+              </div>
+            </div>
+          </section>
+
+          <section id="updates" className="admin-section">
+            <h2>Updates</h2>
+            <p>Manage updates will be implemented here</p>
+          </section>
+
+          <section id="users" className="admin-section">
+            <h2>Users</h2>
+            <p>Manage users will be implemented here</p>
+          </section>
+
+          <section id="settings" className="admin-section">
+            <h2>Settings</h2>
+            <p>Settings will be implemented here</p>
+          </section>
+        </main>
+      </div>
+    </div>
+  );
+}

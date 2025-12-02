@@ -1,6 +1,9 @@
 import React from 'react';
 import './App.css';
 import Header from './components/Header';
+import SearchBar from './components/SearchBar';
+import AnnouncementsCarousel from './components/AnnouncementsCarousel';
+import Updates from './components/Updates';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 
@@ -14,6 +17,11 @@ function App() {
   return (
     <div className="site-root">
       <Header toggleSidebar={toggleSidebar} />
+      <SearchBar />
+      {/* Carousel for mobile - appears below search bar */}
+      <aside className="announcements-sidebar mobile-carousel">
+        <AnnouncementsCarousel />
+      </aside>
       <div className="app-body">
         <Sidebar isOpen={sidebarOpen} />
         {/* mobile overlay: clicking closes the sidebar */}
@@ -23,30 +31,12 @@ function App() {
           aria-hidden={!sidebarOpen}
         />
         <main className="main-content" id="main">
-          <section className="hero">
-            <h1>Welcome to CHIEF G MEDIA</h1>
-            <p>
-              This is a simple responsive web-first layout using solid colors
-              (red, white, and black). The header is fixed, a navigation sidebar
-              is present, and the footer contains a dynamic copyright.
-            </p>
-          </section>
-
-          <section className="cards">
-            <article className="card">
-              <h2>About</h2>
-              <p>Short description of your services, portfolio, or company.</p>
-            </article>
-            <article className="card">
-              <h2>Services</h2>
-              <p>List the core services offered by CHIEF G MEDIA.</p>
-            </article>
-            <article className="card">
-              <h2>Contact</h2>
-              <p>Place contact info or call-to-action links here.</p>
-            </article>
-          </section>
+          <Updates />
         </main>
+        {/* Carousel for desktop - appears on right side */}
+        <aside className="announcements-sidebar desktop-carousel">
+          <AnnouncementsCarousel />
+        </aside>
       </div>
 
       <Footer />

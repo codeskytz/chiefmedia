@@ -5,10 +5,10 @@ export default function Sidebar({ isOpen = false }) {
   return (
     <aside className={`site-sidebar ${isOpen ? 'open' : ''}`} aria-label="Side navigation">
       <nav>
-        <a href="#about" className="side-link">About</a>
-        <a href="#portfolio" className="side-link">Portfolio</a>
-        <a href="#team" className="side-link">Team</a>
-        <a href="#blog" className="side-link">Blog</a>
+        <a href="#home" className="side-link">Home</a>
+        <a href="#updates" className="side-link">Updates</a>
+        <a href="#contacts" className="side-link">Contacts</a>
+        <a href="#about" className="side-link">About Us</a>
       </nav>
     </aside>
   );
