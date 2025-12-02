@@ -1,7 +1,7 @@
-# Announcement Management - Security & Permissions Documentation
+# Announcements & Updates Management - Security & Permissions Documentation
 
 ## Overview
-This document outlines all security measures and permissions implemented for the announcement management system in the CHIEF G MEDIA admin panel.
+This document outlines all security measures and permissions implemented for the announcement and updates management system in the CHIEF G MEDIA admin panel.
 
 ---
 
@@ -10,7 +10,7 @@ This document outlines all security measures and permissions implemented for the
 ### Location
 Apply these rules in Firebase Console:
 - Go to **Firestore Database** → **Rules**
-- Replace the default rules with the content in `FIRESTORE_RULES.txt`
+- Replace the default rules with the content in `firestore.rules`
 - Click **Publish**
 
 ### Key Rules
@@ -26,13 +26,24 @@ Validation:
 - Title: Required, string, 1-100 characters
 - Image: Required, valid URL string
 - Timestamps: createdAt and updatedAt required
+- User tracking: createdBy and updatedBy required
 ```
 
 #### Updates Collection
 ```
-Similar structure to announcements
-Additional validation:
-- Description: Required, non-empty string
+- READ: Public access (anyone can read for updates page)
+- CREATE: Only authenticated users
+- UPDATE: Only authenticated users
+- DELETE: Only authenticated users
+
+Validation:
+- Title: Required, string, 1-150 characters
+- Main Content: Required, string, 1-2000 characters
+- Image: Required, valid, non-empty URL string
+- Tags: Optional, must be array type (can be empty)
+- Social Media Links: Optional, must be map type (can be empty)
+- Timestamps: createdAt, updatedAt required
+- User tracking: createdBy required, updatedBy required for updates
 ```
 
 #### Admins Collection
@@ -86,6 +97,37 @@ uploadImageToImgbb(file, retries = 3)
 - Handles rate limiting (429 errors) with exponential backoff
 - Validates file before upload
 - Returns image URL for storage in Firestore
+```
+
+### updatesService.js
+
+#### Updates Data Validation
+```javascript
+validateUpdateData(update)
+- Title: Required, 1-150 characters, string type
+- Main Content: Required, 1-2000 characters, string type
+- Image: Required, valid URL string
+- Tags: Optional, must be array
+- Social Media Links: Optional, must be object/map
+```
+
+#### Social Media URL Validation
+```javascript
+Validated Platforms:
+- facebook: URL must be valid format
+- twitter: URL must be valid format
+- instagram: URL must be valid format
+- linkedin: URL must be valid format
+- tiktok: URL must be valid format
+```
+
+#### Tag Handling
+```javascript
+Tags are parsed from comma-separated string:
+1. Split by comma
+2. Trim whitespace from each tag
+3. Filter out empty tags
+4. Store as array in Firestore
 ```
 
 ---
@@ -247,6 +289,43 @@ allow delete: if isAdmin();
 - Error message shown, form remains intact ✓
 - Re-enable WiFi, try again → Works ✓
 
+### Test Case 6: Update with All Fields
+- Log in as admin
+- Fill update form with all fields:
+  * Title: "Important Update" (< 150 chars)
+  * Main Content: Full text (< 2000 chars)
+  * Featured Image: Upload valid JPG/PNG
+  * Tags: "news, important" (parsed correctly)
+  * Social Media: Add Facebook, Twitter, Instagram links
+- Submit → Success, update published ✓
+- Check UpdatesList → Shows all fields ✓
+
+### Test Case 7: Update with Optional Fields Missing
+- Create update with only title, content, image
+- Tags and social media empty → Accepted ✓
+- Empty arrays/objects stored in Firestore ✓
+
+### Test Case 8: Validation on Update
+- Try creating update with:
+  * Title > 150 chars → Error ✓
+  * Main content > 2000 chars → Error ✓
+  * No image → Error ✓
+  * Invalid tag format (not parsed) → Error ✓
+- Form prevents submission ✓
+
+### Test Case 9: Delete Update
+- Click delete on published update
+- Confirm dialog shows update title
+- Update removed from list ✓
+- Unauthenticated cannot delete ✓
+
+### Test Case 10: Public Read Access for Updates
+- Close browser, don't log in
+- Visit updates page → All updates visible ✓
+- No authentication required ✓
+- Social media links clickable ✓
+- Tags displayed correctly ✓
+
 ---
 
 ## 8. Error Messages Reference
@@ -254,10 +333,14 @@ allow delete: if isAdmin();
 | Error | Cause | Solution |
 |-------|-------|----------|
 | "You must be logged in..." | User not authenticated | Log in to admin panel |
-| "Title is required..." | Empty title field | Enter announcement title |
-| "Title must be 100 characters..." | Title too long | Shorten title (current: X/100) |
+| "Title is required..." | Empty title field | Enter update title |
+| "Title must be 150 characters..." | Title too long | Shorten title (current: X/150) |
+| "Main content is required..." | Empty content field | Enter main content text |
+| "Main content must be 2000 characters..." | Content too long | Shorten content (current: X/2000) |
 | "Image size must be less than 5MB..." | File too large | Choose smaller image |
 | "Invalid image type..." | Wrong file format | Use JPG, PNG, GIF, or WebP |
+| "Tags must be an array..." | Invalid tag format | Enter comma-separated tags |
+| "Social media links must be object..." | Invalid links format | Check URL format |
 | "Failed to upload image..." | imgbb API error | Check internet, try again |
 | "Permission denied..." | User not authorized | Contact admin |
 | "Service temporarily unavailable..." | Firebase down | Try again later |
@@ -266,24 +349,61 @@ allow delete: if isAdmin();
 
 ## 9. Summary of Implemented Permissions
 
+### Announcements
 ✅ Authentication validation (required login)
-✅ File type validation (JPG, PNG, GIF, WebP only)
-✅ File size validation (max 5MB)
-✅ Data format validation (title 1-100 chars, valid URLs)
-✅ Firestore security rules (READ public, WRITE authenticated only)
-✅ Error handling with user-friendly messages
-✅ Image upload retry logic with exponential backoff
+✅ Title validation (1-100 characters)
+✅ Image validation (JPG, PNG, GIF, WebP, max 5MB)
+✅ Firestore rules (READ public, WRITE authenticated only)
+✅ Error handling with messages
+✅ Image upload retry logic
 ✅ Delete confirmation dialog
-✅ Audit trail (createdBy, createdAt, updatedBy, updatedAt fields)
+✅ Audit trail (createdBy, createdAt, updatedBy, updatedAt)
+
+### Updates
+✅ Authentication validation (required login)
+✅ Title validation (1-150 characters)
+✅ Main content validation (1-2000 characters)
+✅ Image validation (JPG, PNG, GIF, WebP, max 5MB)
+✅ Tags parsing (comma-separated → array)
+✅ Social media links validation (5 platforms)
+✅ Optional fields handling (tags, social links can be empty)
+✅ Firestore rules (READ public, WRITE authenticated only)
+✅ Error handling with specific messages
+✅ Image upload retry logic
+✅ Delete confirmation dialog
+✅ Audit trail (createdBy, createdAt, updatedBy, updatedAt)
 ✅ Network error resilience
 ✅ Rate limiting support (Firebase + imgbb)
 
 ---
 
-## 10. Next Steps
+## 10. Deployment Checklist
 
-1. **Deploy Firestore Rules**: Copy rules from FIRESTORE_RULES.txt to Firebase Console
-2. **Test Permissions**: Follow test cases in Section 7
-3. **Monitor Errors**: Check browser console and Firebase logs for issues
-4. **Set Up Admin Users**: Add authenticated users to /admins collection
+1. **Deploy Firestore Rules**
+   - [ ] Copy rules from `firestore.rules` file
+   - [ ] Go to Firebase Console > Firestore > Rules
+   - [ ] Paste rules into editor
+   - [ ] Click Publish
+   - [ ] Wait for deployment (usually 1-2 minutes)
+
+2. **Test Announcements**
+   - [ ] Create announcement with valid data → Success
+   - [ ] Try creating with invalid title → Error
+   - [ ] Delete announcement → Removed
+   - [ ] Public user can read → No auth required
+
+3. **Test Updates**
+   - [ ] Create update with all fields → Success
+   - [ ] Create update with optional fields empty → Success
+   - [ ] Try creating with invalid data → Error
+   - [ ] Tags parsed correctly → Array format
+   - [ ] Social media links stored → Map format
+   - [ ] Delete update → Removed
+   - [ ] Public user can read → No auth required
+
+4. **Monitor**
+   - [ ] Check Firebase logs for errors
+   - [ ] Monitor console for validation warnings
+   - [ ] Test from different networks
+   - [ ] Test on mobile and desktop
 5. **Enable Custom Claims** (optional): For role-based access control

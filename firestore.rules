@@ -41,29 +41,65 @@ service cloud.firestore {
       allow delete: if isAuthenticated();
     }
 
-    // Updates Collection Rules (same structure as announcements)
+    // Updates Collection Rules (Rich content with tags and social media)
     match /updates/{document=**} {
       // Read: Public can read (for updates section on homepage)
       allow read: if true;
       
-      // Create: Only authenticated admins can create
+      // Create: Only authenticated users can create
       allow create: if isAuthenticated() && 
+                       // Title validation
                        request.resource.data.title != null &&
                        request.resource.data.title is string &&
                        request.resource.data.title.size() > 0 &&
-                       request.resource.data.title.size() <= 100 &&
-                       request.resource.data.description != null &&
-                       request.resource.data.description is string &&
-                       request.resource.data.description.size() > 0 &&
+                       request.resource.data.title.size() <= 150 &&
+                       // Main content validation
+                       request.resource.data.mainContent != null &&
+                       request.resource.data.mainContent is string &&
+                       request.resource.data.mainContent.size() > 0 &&
+                       request.resource.data.mainContent.size() <= 2000 &&
+                       // Image validation
                        request.resource.data.image != null &&
                        request.resource.data.image is string &&
+                       request.resource.data.image.size() > 0 &&
+                       // Tags validation (optional, must be array)
+                       request.resource.data.tags is list &&
+                       // Social media links validation (optional, must be map)
+                       request.resource.data.socialMediaLinks is map &&
+                       // Timestamps validation
                        request.resource.data.createdAt != null &&
-                       request.resource.data.updatedAt != null;
+                       request.resource.data.updatedAt != null &&
+                       // User tracking
+                       request.resource.data.createdBy != null &&
+                       request.resource.data.createdBy is string;
       
-      // Update: Only authenticated admins can update
-      allow update: if isAuthenticated();
+      // Update: Only authenticated users can update
+      allow update: if isAuthenticated() && 
+                       // Title validation
+                       request.resource.data.title != null &&
+                       request.resource.data.title is string &&
+                       request.resource.data.title.size() > 0 &&
+                       request.resource.data.title.size() <= 150 &&
+                       // Main content validation
+                       request.resource.data.mainContent != null &&
+                       request.resource.data.mainContent is string &&
+                       request.resource.data.mainContent.size() > 0 &&
+                       request.resource.data.mainContent.size() <= 2000 &&
+                       // Image validation
+                       request.resource.data.image != null &&
+                       request.resource.data.image is string &&
+                       request.resource.data.image.size() > 0 &&
+                       // Tags validation (optional, must be array)
+                       request.resource.data.tags is list &&
+                       // Social media links validation (optional, must be map)
+                       request.resource.data.socialMediaLinks is map &&
+                       // Timestamps validation
+                       request.resource.data.updatedAt != null &&
+                       // User tracking
+                       request.resource.data.updatedBy != null &&
+                       request.resource.data.updatedBy is string;
       
-      // Delete: Only authenticated admins can delete
+      // Delete: Only authenticated users can delete
       allow delete: if isAuthenticated();
     }
 

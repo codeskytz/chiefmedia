@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import AnnouncementForm from '../components/admin/AnnouncementForm';
 import AnnouncementsList from '../components/admin/AnnouncementsList';
+import UpdatesForm from '../components/admin/UpdatesForm';
+import UpdatesList from '../components/admin/UpdatesList';
 import '../styles/AdminPanel.css';
 
 export default function AdminPanel() {
   const { user, logout } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [announcementRefreshTrigger, setAnnouncementRefreshTrigger] = useState(0);
+  const [updatesRefreshTrigger, setUpdatesRefreshTrigger] = useState(0);
 
   const handleLogout = async () => {
     setLoading(true);
@@ -21,14 +24,18 @@ export default function AdminPanel() {
   };
 
   const handleAnnouncementCreated = () => {
-    setRefreshTrigger((prev) => prev + 1);
+    setAnnouncementRefreshTrigger((prev) => prev + 1);
+  };
+
+  const handleUpdateCreated = () => {
+    setUpdatesRefreshTrigger((prev) => prev + 1);
   };
 
   return (
     <div className="admin-panel">
       <header className="admin-header">
         <div className="admin-header-content">
-          <h1>Admin Dashboard</h1>
+          <h1>CHIEFGMEDIA ADMIN</h1>
           <div className="admin-user-info">
             <span className="user-email">{user?.email}</span>
             <button 
@@ -61,14 +68,22 @@ export default function AdminPanel() {
                 <AnnouncementForm onSuccess={handleAnnouncementCreated} />
               </div>
               <div className="list-container">
-                <AnnouncementsList refreshTrigger={refreshTrigger} />
+                <AnnouncementsList refreshTrigger={announcementRefreshTrigger} />
               </div>
             </div>
           </section>
 
           <section id="updates" className="admin-section">
             <h2>Updates</h2>
-            <p>Manage updates will be implemented here</p>
+            <div className="admin-section-content">
+              <div className="form-container">
+                <h3>Publish New Update</h3>
+                <UpdatesForm onSuccess={handleUpdateCreated} />
+              </div>
+              <div className="list-container">
+                <UpdatesList refreshTrigger={updatesRefreshTrigger} />
+              </div>
+            </div>
           </section>
 
           <section id="users" className="admin-section">
