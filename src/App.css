@@ -275,8 +275,64 @@ body {
   flex-direction: column;
   width: 100%;
   padding: 0;
-  margin-top: calc(var(--header-height) + 60px);
-  margin-bottom: 0;
+  /* smaller offset so carousel sits just under the search bar */
+  margin-top: calc(var(--header-height) + 8px);
+  margin-bottom: 8px;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Mobile: constrain carousel width and center it for better visual balance */
+@media (max-width: 520px) {
+  .announcements-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  /* On small screens, let the mobile carousel provide vertical spacing; remove app-body extra top margin */
+  .app-body{
+    margin-top: 0;
+  }
+
+  .carousel{
+    max-width: 420px; /* cap carousel width on small screens */
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+
+  .carousel-slide{
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .carousel-image{
+    width: 100%;
+    height: auto;
+    max-height: 260px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .carousel-title{
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  .carousel-indicators{
+    justify-content: center;
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
 }
 
 .announcements-sidebar.desktop-carousel{

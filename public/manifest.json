@@ -8,18 +8,18 @@
       "type": "image/x-icon"
     },
     {
-      "src": "chiefgmedia.jpg",
-      "type": "image/jpg",
+      "src": "chiefgmedia192.png",
+      "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "chiefgmedia.jpg",
-      "type": "image/jpg",
+      "src": "chiefgmedia512.png",
+      "type": "image/png",
       "sizes": "512x512"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "FF0000",
-  "background_color": "#ffffff"
+  "theme_color": "#FF0000",
+  "background_color": "#FF0000"
 }
