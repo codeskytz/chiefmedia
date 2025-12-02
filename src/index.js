@@ -6,6 +6,7 @@ import App from './App';
 import { AuthProvider } from './context/AuthContext';
 import AdminLogin from './pages/AdminLogin';
 import AdminPanel from './pages/AdminPanel';
+import UpdateDetail from './pages/UpdateDetail';
 import ProtectedRoute from './components/ProtectedRoute';
 import reportWebVitals from './reportWebVitals';
 
@@ -17,6 +18,7 @@ root.render(
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<App />} />
+          <Route path="/update/:id" element={<UpdateDetail />} />
           <Route path="/admin/login" element={<AdminLogin />} />
 
           {/* Protected admin routes */}

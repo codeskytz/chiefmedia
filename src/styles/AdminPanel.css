@@ -186,6 +186,25 @@
   }
 }
 
+@media (max-width: 768px) {
+  .admin-main {
+    padding: 16px;
+  }
+
+  .admin-section {
+    padding: 16px;
+  }
+
+  .admin-section h2 {
+    font-size: 18px;
+  }
+
+  .form-container,
+  .list-container {
+    min-height: auto;
+  }
+}
+
 @media (max-width: 520px) {
   .admin-header-content {
     flex-direction: column;
@@ -212,10 +231,30 @@
   }
 
   .admin-main {
-    padding: 12px;
+    padding: 8px;
   }
 
   .admin-section {
-    padding: 16px;
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+
+  .admin-section h2 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .admin-section-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .form-container,
+  .list-container {
+    min-height: auto;
+    width: 100%;
+    box-sizing: border-box;
   }
 }
